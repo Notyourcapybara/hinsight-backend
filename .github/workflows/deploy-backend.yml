@@ -1,0 +1,37 @@
+name: Deploy Backend to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/103964926501/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-deployer@hinsight-2.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy hinsight-api \
+            --source . \
+            --region us-central1 \
+            --allow-unauthenticated \
+            --add-cloudsql-instances hinsight-2:us-central1:hinsight2-mock \
+            --set-env-vars DB_USER=postgres,DB_NAME=hinsight,INSTANCE_CONNECTION_NAME=hinsight-2:us-central1:hinsight2-mock \
+            --set-secrets DB_PASS=hinsight-db-password:latest
