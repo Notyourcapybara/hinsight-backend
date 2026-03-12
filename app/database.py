@@ -15,7 +15,7 @@ DB_NAME = os.getenv("DB_NAME")
 INSTANCE_CONNECTION_NAME = os.getenv("INSTANCE_CONNECTION_NAME")
 
 if DATABASE_URL:
-    # Local development: connect using public IP
+    # Local development: connect using public IP.
     final_database_url = DATABASE_URL
 else:
     # Cloud Run: connect via Cloud SQL socket
